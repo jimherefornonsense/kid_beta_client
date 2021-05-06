@@ -11,26 +11,24 @@ using namespace std;
 
 struct player {
     string no;
-    map<string, int> cards;
-    //Followers
-    int B;
+    map<string, int> cards;  //8 cards
+    int B;                   //Followers
     int R;
     int Y;
 };
 
 struct region {
     string name;
-    string initFaction;
-    string faction;
-    vector<string> adjacency;
-    bool whiteDisc;
-    //Followers
-    int B;
+    string initFaction;        //Only work for ES, MO, GW
+    string faction;            //Result of power struggle
+    vector<string> adjacency;  //Adjacent regions
+    bool whiteDisc;            //Note of can't be moved order
+    int B;                     //Followers
     int R;
     int Y;
 };
 
-string playerNum;
+string playerNum; //Controlling player number
 vector<player> playerList;
 vector<string> regionOrder;
 map<string, region> regionListInPSOrder;
@@ -72,6 +70,7 @@ void writeToPipe(string path, string msg){
 }
 
 void setMapPopulation(vector<string> msg){
+    //02:ES,2,2,0;DE,1,1,2;...
     for(int i = 0; i < msg.size();){
         region aRegion;
         aRegion.name = msg[i];
@@ -93,6 +92,7 @@ void setMapPopulation(vector<string> msg){
 }
 
 void set2FollowersEach(vector<string> msg){
+    //03:P1,1,0,1
     player aPlayer;
     aPlayer.cards["B"] = 1;
     aPlayer.cards["R"] = 1;
@@ -109,6 +109,7 @@ void set2FollowersEach(vector<string> msg){
 }
 
 void setRegionOrder(vector<string> msg){
+    //04:MO,NO...ES
     for(int i = 0; i < msg.size(); i++){
         regionOrder.push_back(msg[i]);
     }
@@ -136,35 +137,43 @@ void setAdjacency(){
 }
 
 string supportCard(){
+    //07:P1,[S/W/E],ES
     return "";
 }
 
 string assembleCard(){
+    //08:ES,R,NO,Y,MO,B
     return "";
 }
 
 string manoeuvreCard(){
+    //09:ES,R,NO,Y
     return "";
 }
 
-string outManoeuvreCard(){
+string outmanoeuvreCard(){
+    //10:ES,RY,NO,B
     return "";
 }
 
 string negotiateCard(){
+    //11:ES,WA
     return "";
 }
 
-void setFollowerToPlayer(vector<string> msg){
-    
+string summonAFollower(){
+    //12: B,ES
+    return "";
 }
 
 void actionInfo(vector<string> msg){
-    
+    //13: P1; [A, ES, R, NO, Y, MO, B]; [ES.B]
 }
 
 void powerStruggle(vector<string> msg){
-    
+    //14:ES,[BRYF]
+    regionListInPSOrder[msg[0]].faction = msg[1];
+    cout << "Region " << msg[0] << " is resolved to " << msg[1] << endl;
 }
 
 string playerPass(){
@@ -172,11 +181,21 @@ string playerPass(){
 }
 
 void winnerAnnounce(vector<string> msg){
-    
+    //16:P2,[C/F]
+    cout << "The game winner is " << msg[0] << (msg[1]=="C" ? " by coronation" : " by French invasion") << endl;
 }
 
 string playTurn(vector<string> msg){
+    //06:P1
     if(msg[0].substr(1,1) == playerNum){
+        cout << "Your turn\n"
+        << "Please select a card or pass\n"
+        << "[1] Support\n"
+        << "[2] Assemble\n"
+        << "[3] Manoeuvre\n"
+        << "[4] Outmanoeuvre\n"
+        << "[5] Negotiate\n"
+        << "[6] Pass\n";
         int actionNum;
         //Cin loop
         for (string line; getline(cin, line);){
@@ -200,7 +219,7 @@ string playTurn(vector<string> msg){
         case 3:
             return manoeuvreCard();
         case 4:
-            return outManoeuvreCard();
+            return outmanoeuvreCard();
         case 5:
             return negotiateCard();
         case 6:
@@ -208,6 +227,8 @@ string playTurn(vector<string> msg){
         default:
             break;
         }
+    } else{
+        cout << "It's " << msg[0] << "'s turn";
     }
 
     return "";
@@ -225,9 +246,11 @@ int main(int argc, char* arg[]){
     string listenFrom = "/tmp/";
     string speakTo = "/tmp/";   
     playerNum = arg[1];
+    cout << "Your number is " << playerNum << endl;
     listenFrom = listenFrom + arg[2] + "toP" + arg[1];
     speakTo = speakTo + arg[2] + "fromP" + arg[1];
-    cout << playerNum << " " << listenFrom << " " << speakTo << endl;
+    //Test
+    //cout << playerNum << " " << listenFrom << " " << speakTo << endl;
     
     //Control logic
     while(1){
@@ -242,12 +265,13 @@ int main(int argc, char* arg[]){
                 vector<string> msgTemp = split(msgChunk[i], ',');
                 msg.insert(msg.end(), msgTemp.begin(), msgTemp.end());
             }
+            //Test
+            //cout << protocol << endl;
+            // for(int i = 0; i < msg.size(); i++){
+            //     cout << msg[i] << " ";
+            // }
+            // cout << endl;
 
-            cout << protocol << endl;
-            for(int i = 0; i < msg.size(); i++){
-                cout << msg[i] << " ";
-            }
-            cout << endl;
             //Actions
             switch(protocol){
                 case 2:
@@ -264,12 +288,11 @@ int main(int argc, char* arg[]){
                     string saying = playTurn(msg);
                     if(saying.length() > 0){
                         writeToPipe(speakTo, saying);
+                        // saying = summonAFollower();
+                        // writeToPipe(speakTo, saying);
                     }
                     break;
                 }
-                case 12:
-                    setFollowerToPlayer(msg);
-                    break;
                 case 13:
                     actionInfo(msg);
                     break;
