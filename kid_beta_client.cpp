@@ -286,7 +286,10 @@ string assembleCard(){
             stoi(answer[1]) >= 0 && stoi(answer[1]) < counter && //Check if in valid range
             stoi(answer[2]) >= 0 && stoi(answer[2]) < counter)   //Check if in valid range
             break;
-        cout << "Sorry, enter valid numbers please." << endl;
+        else if(answer.size() != 3)
+            cout << "Sorry, enter 3 valid numbers please." << endl;
+        else
+            cout << "Sorry, enter valid numbers please." << endl;
     }
     return "08:" + options[stoi(answer[0])] + ",B," + options[stoi(answer[1])] + ",R," + options[stoi(answer[2])] + ",Y\n";
 }
