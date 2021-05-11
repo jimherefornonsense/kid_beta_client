@@ -583,48 +583,48 @@ void doAssemble(vector<string> msg){
 
 void doBlueSupport(vector<string> msg){
     //Add followers to region
-    regionList[msg[2]].B += 2;
+    regionList[msg[3]].B += 2;
     //Take off the appointed follower from region add it to player
-    if(msg[4] == "B"){
-        regionList[msg[3]].B--;
+    if(msg[5] == "B"){
+        regionList[msg[4]].B--;
         playerList[stoi(msg[0].substr(1, 1))-1].B++;
-    }else if(msg[4] == "R"){
-        regionList[msg[3]].R--;
+    }else if(msg[5] == "R"){
+        regionList[msg[4]].R--;
         playerList[stoi(msg[0].substr(1, 1))-1].R++;
-    }else if(msg[4] == "Y"){
-        regionList[msg[3]].Y--;
+    }else if(msg[5] == "Y"){
+        regionList[msg[4]].Y--;
         playerList[stoi(msg[0].substr(1, 1))-1].Y++;
     }
 }
 
 void doRedSupport(vector<string> msg){
     //Add followers to region
-    regionList[msg[2]].R += 2;
+    regionList[msg[3]].R += 2;
     //Take off the appointed follower from region add it to player
-    if(msg[4] == "B"){
-        regionList[msg[3]].B--;
+    if(msg[5] == "B"){
+        regionList[msg[4]].B--;
         playerList[stoi(msg[0].substr(1, 1))-1].B++;
-    }else if(msg[4] == "R"){
-        regionList[msg[3]].R--;
+    }else if(msg[5] == "R"){
+        regionList[msg[4]].R--;
         playerList[stoi(msg[0].substr(1, 1))-1].R++;
-    }else if(msg[4] == "Y"){
-        regionList[msg[3]].Y--;
+    }else if(msg[5] == "Y"){
+        regionList[msg[4]].Y--;
         playerList[stoi(msg[0].substr(1, 1))-1].Y++;
     }
 }
 
 void doYellowSupport(vector<string> msg){
     //Add followers to region
-    regionList[msg[2]].Y += 2;
+    regionList[msg[3]].Y += 2;
     //Take off the appointed follower from region add it to player
-    if(msg[4] == "B"){
-        regionList[msg[3]].B--;
+    if(msg[5] == "B"){
+        regionList[msg[4]].B--;
         playerList[stoi(msg[0].substr(1, 1))-1].B++;
-    }else if(msg[4] == "R"){
-        regionList[msg[3]].R--;
+    }else if(msg[5] == "R"){
+        regionList[msg[4]].R--;
         playerList[stoi(msg[0].substr(1, 1))-1].R++;
-    }else if(msg[4] == "Y"){
-        regionList[msg[3]].Y--;
+    }else if(msg[5] == "Y"){
+        regionList[msg[4]].Y--;
         playerList[stoi(msg[0].substr(1, 1))-1].Y++;
     }
 }
@@ -752,23 +752,25 @@ void actionInfo(vector<string> msg){
         doAssemble(msg);
         psCounter = 3;
     }else if(msg[1] == "S"){
-        cout << "used Blue Support\n";
-        cout << msg[2] << " added 2 blue followers\n";
-        cout << msg[0] << " took a " << msg[4] << " follower from " << msg[3] << "\n";
-        doBlueSupport(msg);
-        psCounter = 3;
-    }else if(msg[1] == "W"){
-        cout << "used Red Support\n";
-        cout << msg[2] << " added 2 red followers\n";
-        cout << msg[0] << " took a " << msg[4] << " follower from " << msg[3] << "\n";
-        doRedSupport(msg);
-        psCounter = 3;
-    }else if(msg[1] == "E"){
-        cout << "used Yellow Support\n";
-        cout << msg[2] << " added 2 yellow followers\n";
-        cout << msg[0] << " took a " << msg[4] << " follower from " << msg[3] << "\n";
-        doYellowSupport(msg);
-        psCounter = 3;
+        if(msg[2] == "S"){
+            cout << "used Blue Support\n";
+            cout << msg[3] << " added 2 blue followers\n";
+            cout << msg[0] << " took a " << msg[5] << " follower from " << msg[4] << "\n";
+            doBlueSupport(msg);
+            psCounter = 3;
+        }else if(msg[2] == "W"){
+            cout << "used Red Support\n";
+            cout << msg[3] << " added 2 red followers\n";
+            cout << msg[0] << " took a " << msg[5] << " follower from " << msg[4] << "\n";
+            doRedSupport(msg);
+            psCounter = 3;
+        }else if(msg[2] == "E"){
+            cout << "used Yellow Support\n";
+            cout << msg[3] << " added 2 yellow followers\n";
+            cout << msg[0] << " took a " << msg[5] << " follower from " << msg[4] << "\n";
+            doYellowSupport(msg);
+            psCounter = 3;
+        }
     }else if(msg[1] == "M"){
         cout << "used Manoeuvre\n";
         cout << "swapped " << msg[3] << " from " << msg[2] << " with " << msg[5] << " from " << msg[4] << "\n";
