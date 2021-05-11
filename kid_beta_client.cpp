@@ -336,7 +336,10 @@ string manoeuvreCard(){
             stoi(answer[0]) >= 0 && stoi(answer[0]) < counter &&    //Check if in valid range
             stoi(answer[1]) >= 0 && stoi(answer[1]) < counter)      //Check if in valid range
             break;
-        cout << "Sorry, enter valid numbers please." << endl;
+        else if(get<0>(options[stoi(answer[0])]) == get<0>(options[stoi(answer[1])]))
+            cout << "Sorry, select different regions please." << endl;
+        else
+            cout << "Sorry, enter valid numbers please." << endl;
     }
     return "09:" + get<0>(options[stoi(answer[0])]) + "," + get<1>(options[stoi(answer[0])]) + "," + get<0>(options[stoi(answer[1])]) + "," + get<1>(options[stoi(answer[1])]) + "\n";
 }
@@ -556,7 +559,7 @@ string summonAFollower(){
         //Clear cin buffer
         cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         //Evaluate input
-        if(answer.length() == 1 && isdigit(answer[0]) && stoi(answer) >= 0 && stoi(answer) < counter)
+        if(isdigit(answer[0]) && stoi(answer) >= 0 && stoi(answer) < counter)
             break;
         cout << "Sorry, enter a valid number please." << endl;
     }
