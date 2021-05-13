@@ -570,6 +570,8 @@ string summonAFollower(){
 }
 
 void doAssemble(vector<string> msg){
+    //Subtract the card usage
+    playerList[stoi(msg[0].substr(1, 1))-1].cards["A"]--;
     //Add followers to regions
     regionList[msg[2]].B++;
     regionList[msg[2*2]].R++;
@@ -588,6 +590,8 @@ void doAssemble(vector<string> msg){
 }
 
 void doBlueSupport(vector<string> msg){
+    //Subtract the card usage
+    playerList[stoi(msg[0].substr(1, 1))-1].cards["B"]--;
     //Add followers to region
     regionList[msg[3]].B += 2;
     //Take off the appointed follower from region add it to player
@@ -604,6 +608,8 @@ void doBlueSupport(vector<string> msg){
 }
 
 void doRedSupport(vector<string> msg){
+    //Subtract the card usage
+    playerList[stoi(msg[0].substr(1, 1))-1].cards["R"]--;
     //Add followers to region
     regionList[msg[3]].R += 2;
     //Take off the appointed follower from region add it to player
@@ -620,6 +626,8 @@ void doRedSupport(vector<string> msg){
 }
 
 void doYellowSupport(vector<string> msg){
+    //Subtract the card usage
+    playerList[stoi(msg[0].substr(1, 1))-1].cards["Y"]--;
     //Add followers to region
     regionList[msg[3]].Y += 2;
     //Take off the appointed follower from region add it to player
@@ -636,6 +644,8 @@ void doYellowSupport(vector<string> msg){
 }
 
 void doManoeuvre(vector<string> msg){
+    //Subtract the card usage
+    playerList[stoi(msg[0].substr(1, 1))-1].cards["M"]--;
     //Swap first follower
     if(msg[3] == "B"){
         regionList[msg[2]].B--;
@@ -672,6 +682,8 @@ void doManoeuvre(vector<string> msg){
 }
 
 void doOutmanoeuvre(vector<string> msg){
+    //Subtract the card usage
+    playerList[stoi(msg[0].substr(1, 1))-1].cards["O"]--;
     //Swap first follower
     if(msg[3] == "B"){
         regionList[msg[2]].B--;
@@ -722,6 +734,8 @@ void doNegotiate(vector<string> msg){
     int a_i, b_i;
     string temp;
 
+    //Subtract the card usage
+    playerList[stoi(msg[0].substr(1, 1))-1].cards["N"]--;
     //Added white disc
     regionList[msg[2]].whiteDisc = true;
     //Locate two regions index
@@ -807,7 +821,6 @@ void actionInfo(vector<string> msg){
         cout << "passed\n";
         psCounter--;
     }
-    cout << "Power struggle count down: " << psCounter << "\n";
 }
 
 void powerStruggle(vector<string> msg){
@@ -869,6 +882,7 @@ void displayCurrentTable(){
         }
         cout << "\n\n";
     }
+    cout << "\nPower struggle count down: " << psCounter << "\n\n";
 }
 
 string playTurn(vector<string> msg){
