@@ -180,7 +180,7 @@ string blueSupportCard(){
         cout << "Sorry, enter a valid number please." << endl;
     }
 
-    return "07:P" + playerNum + ",S," + options[stoi(answer)] + "\n";
+    return "07:S," + options[stoi(answer)] + "\n";
 }
 
 string redSupportCard(){
@@ -219,7 +219,7 @@ string redSupportCard(){
         cout << "Sorry, enter a valid number please." << endl;
     }
 
-    return "07:P" + playerNum + ",W," + options[stoi(answer)] + "\n";
+    return "07:W," + options[stoi(answer)] + "\n";
 }
 
 string yellowSupportCard(){
@@ -258,7 +258,7 @@ string yellowSupportCard(){
         cout << "Sorry, enter a valid number please." << endl;
     }
 
-    return "07:P" + playerNum + ",E," + options[stoi(answer)] + "\n";
+    return "07:E," + options[stoi(answer)] + "\n";
 }
 
 string assembleCard(){
