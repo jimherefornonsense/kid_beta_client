@@ -762,7 +762,7 @@ void doNegotiate(vector<string> msg){
 
 void actionInfo(vector<string> msg){
     //13:P1;[A,ES,B,NO,R,MO,Y];[ES.B]
-    cout << msg[0] << " ";
+    cout << "\n" << msg[0] << " ";
     if(msg[1] == "A"){
         cout << "used Assemble\n";
         cout << msg[2] << " added a " << msg[3] << " follower\n";
@@ -826,6 +826,9 @@ void actionInfo(vector<string> msg){
 void powerStruggle(vector<string> msg){
     //14:ES,[BRYF]
     regionList[msg[0]].faction = msg[1];
+    regionList[msg[0]].B = 0;
+    regionList[msg[0]].R = 0;
+    regionList[msg[0]].Y = 0;
     nextResolveRegion_i++;
     psCounter = 3;
     cout << "Region " << msg[0] << " is resolved to " << msg[1] << endl;
