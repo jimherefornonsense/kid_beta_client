@@ -486,7 +486,7 @@ string manoeuvreCard(){
             stoi(answer[0]) >= 0 && stoi(answer[0]) < counter &&    //Check if in valid range
             stoi(answer[1]) >= 0 && stoi(answer[1]) < counter)      //Check if in valid range
             break;
-        else if(get<0>(options[stoi(answer[0])]) == get<0>(options[stoi(answer[1])]))
+        else if(answer.size() == 2 && get<0>(options[stoi(answer[0])]) == get<0>(options[stoi(answer[1])]))
             cout << "Sorry, select different regions please." << endl;
         else
             cout << "Sorry, enter valid numbers please." << endl;
@@ -665,9 +665,12 @@ string negotiateCard(){
         << "the first selection will be added a white disc (separate input by space)\n";
     //Find out options
     for(int i = nextResolveRegion_i; i < regionOrder.size(); ++i){
-        cout << "[" << counter << "] " << regionOrder[i] << endl;
-        options.push_back(regionOrder[i]);
-        counter++;
+        //Check if white disc is on it
+        if(regionList[regionOrder[i]].whiteDisc != 1){
+            cout << "[" << counter << "] " << regionOrder[i] << endl;
+            options.push_back(regionOrder[i]);
+            counter++;
+        }
     }
     //While loop
     while(1){
@@ -738,7 +741,9 @@ void actionInfo(vector<string> msg){
     //P1;[A,ES,B,NO,R,MO,Y];[ES.B]
     cout << "\n" << msg[0] << " ";
     int playerNo = stoi(msg[0].substr(1, 1));
-    vector<string> subMsg(msg.begin()+2, msg.end()-2);
+    vector<string> subMsg;
+    if(msg[1] != "P")
+        subMsg.assign(msg.begin()+2, msg.end()-2);
 
     if(msg[1] == "A"){
         cout << "used Assemble\n";
@@ -786,7 +791,7 @@ void actionInfo(vector<string> msg){
     }else if(msg[1] == "O"){
         cout << "used Outmanoeuvre\n";
         //2 cases possible, swap 2 with 1
-        if(msg.size() == 8){
+        if(msg.size() == 9){
             cout << "swapped " << msg[3] << " and " << msg[4] << " from " << msg[2] << " with " << msg[6] << " from " << msg[5] << "\n";
             cout << msg[0] << " took a " << msg[8] << " follower from " << msg[7] << "\n";
             if(playerNo != stoi(playerNum)){
@@ -805,7 +810,7 @@ void actionInfo(vector<string> msg){
         psCounter = 3;
     }else if(msg[1] == "N"){
         cout << "used Negotiate\n";
-        cout << "swapped PS order of regions of " << msg[2] << "(added white disc) and " << msg[3] << "\n";
+        cout << "swapped PS order of regions in " << msg[2] << " (added white disc) and " << msg[3] << "\n";
         cout << msg[0] << " took a " << msg[5] << " follower from " << msg[4] << "\n";
         if(playerNo != stoi(playerNum)){
             doNegotiate(playerNo, subMsg);
@@ -931,6 +936,8 @@ string playTurn(vector<string> msg){
             actions.push_back(negotiateCard);
             counter++;
         }
+        if(counter == 0)
+            return playerPass();
         cout << "[" << counter << "] " << "Pass\n";
         actions.push_back(playerPass);
         //cin loop
@@ -1031,6 +1038,7 @@ int main(int argc, char* arg[]){
                     break;
                 case 16:
                     winnerAnnounce(msg);
+                    on = false;
                     break;
                 default:
                     break;
