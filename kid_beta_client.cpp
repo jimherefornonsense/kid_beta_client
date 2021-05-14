@@ -144,8 +144,142 @@ void setAdjacency(){
     addAdjacency("ST", "MO");
 }
 
+void takeFollower(int playerNo, string region, string color){
+    //Take off the appointed follower from region add it to player
+    if(color == "B"){
+        regionList[region].B--;
+        playerList[playerNo-1].B++;
+    }else if(color == "R"){
+        regionList[region].R--;
+        playerList[playerNo-1].R++;
+    }else if(color == "Y"){
+        regionList[region].Y--;
+        playerList[playerNo-1].Y++;
+    }
+}
+
+void doAssemble(int playerNo, vector<string> msg){
+    //ES,B,NO,R,MO,Y
+    //Subtract the card usage
+    playerList[playerNo-1].cards["A"]--;
+    //Add followers to regions
+    regionList[msg[0]].B++;
+    regionList[msg[2]].R++;
+    regionList[msg[4]].Y++;
+}
+
+void doBlueSupport(int playerNo, vector<string> msg){
+    //[S/W/E],ES
+    //Subtract the card usage
+    playerList[playerNo-1].cards["B"]--;
+    //Add followers to region
+    regionList.at(msg[1]).B += 2;
+}
+
+void doRedSupport(int playerNo, vector<string> msg){
+    //Subtract the card usage
+    playerList[playerNo-1].cards["R"]--;
+    //Add followers to region
+    regionList[msg[1]].R += 2;
+}
+
+void doYellowSupport(int playerNo, vector<string> msg){
+    //Subtract the card usage
+    playerList[playerNo-1].cards["Y"]--;
+    //Add followers to region
+    regionList[msg[1]].Y += 2;
+}
+
+void doManoeuvre(int playerNo, vector<string> msg){
+    //ES,R,NO,Y
+    //Subtract the card usage
+    playerList[playerNo-1].cards["M"]--;
+    //Swap first follower
+    if(msg[1] == "B"){
+        regionList[msg[0]].B--;
+        regionList[msg[2]].B++;
+    }else if(msg[1] == "R"){
+        regionList[msg[0]].R--;
+        regionList[msg[2]].R++;
+    }else if(msg[1] == "Y"){
+        regionList[msg[0]].Y--;
+        regionList[msg[2]].Y++;
+    }
+    //Swap second follower
+    if(msg[3] == "B"){
+        regionList[msg[0]].B++;
+        regionList[msg[2]].B--;
+    }else if(msg[3] == "R"){
+        regionList[msg[0]].R++;
+        regionList[msg[2]].R--;
+    }else if(msg[3] == "Y"){
+        regionList[msg[0]].Y++;
+        regionList[msg[2]].Y--;
+    }
+}
+
+void doOutmanoeuvre(int playerNo, vector<string> msg){
+    //ES,R,Y,NO,B
+    //Subtract the card usage
+    playerList[playerNo-1].cards["O"]--;
+    //Swap first follower
+    if(msg[1] == "B"){
+        regionList[msg[0]].B--;
+        regionList[msg[3]].B++;
+    }else if(msg[1] == "R"){
+        regionList[msg[0]].R--;
+        regionList[msg[3]].R++;
+    }else if(msg[1] == "Y"){
+        regionList[msg[0]].Y--;
+        regionList[msg[3]].Y++;
+    }
+    //Swap second follower
+    if(msg[2] == "B"){
+        regionList[msg[0]].B--;
+        regionList[msg[3]].B++;
+    }else if(msg[2] == "R"){
+        regionList[msg[0]].R--;
+        regionList[msg[3]].R++;
+    }else if(msg[2] == "Y"){
+        regionList[msg[0]].Y--;
+        regionList[msg[3]].Y++;
+    }
+    //Swap third follower
+    if(msg[4] == "B"){
+        regionList[msg[0]].B++;
+        regionList[msg[3]].B--;
+    }else if(msg[4] == "R"){
+        regionList[msg[0]].R++;
+        regionList[msg[3]].R--;
+    }else if(msg[4] == "Y"){
+        regionList[msg[0]].Y++;
+        regionList[msg[3]].Y--;
+    }
+}
+
+void doNegotiate(int playerNo, vector<string> msg){
+    //ES,WA
+    int a_i, b_i;
+    string temp;
+
+    //Subtract the card usage
+    playerList[playerNo-1].cards["N"]--;
+    //Added white disc
+    regionList[msg[0]].whiteDisc = true;
+    //Locate two regions index
+    for(int i = nextResolveRegion_i; i < regionOrder.size(); ++i){
+        if(regionOrder[i] == msg[0]) a_i = i;
+        if(regionOrder[i] == msg[1]) b_i = i;
+    }
+    //Swap two regions order
+    temp = regionOrder[a_i];
+    regionOrder[a_i] = regionOrder[b_i];
+    regionOrder[b_i] = temp;
+}
+
 string blueSupportCard(){
-    //07:P1,[S/W/E],ES
+    //07:[S/W/E],ES
+    string result;
     string answer;
     vector<string> options;
     int counter = 0;
@@ -180,11 +314,14 @@ string blueSupportCard(){
         cout << "Sorry, enter a valid number please." << endl;
     }
 
-    return "07:S," + options[stoi(answer)] + "\n";
+    result = "07:S," + options[stoi(answer)];
+    doBlueSupport(stoi(playerNum), split(result.substr(3), ','));
+    return result + "\n";
 }
 
 string redSupportCard(){
-    //07:P1,[S/W/E],ES
+    //07:[S/W/E],ES
+    string result;
     string answer;
     vector<string> options;
     int counter = 0;
@@ -219,11 +356,14 @@ string redSupportCard(){
         cout << "Sorry, enter a valid number please." << endl;
     }
 
-    return "07:W," + options[stoi(answer)] + "\n";
+    result = "07:W," + options[stoi(answer)];
+    doRedSupport(stoi(playerNum), split(result.substr(3), ','));
+    return result + "\n";
 }
 
 string yellowSupportCard(){
-    ///07:P1,[S/W/E],ES
+    ///07:[S/W/E],ES
+    string result;
     string answer;
     vector<string> options;
     int counter = 0;
@@ -258,11 +398,14 @@ string yellowSupportCard(){
         cout << "Sorry, enter a valid number please." << endl;
     }
 
-    return "07:E," + options[stoi(answer)] + "\n";
+    result = "07:E," + options[stoi(answer)];
+    doYellowSupport(stoi(playerNum), split(result.substr(3), ','));
+    return result + "\n";
 }
 
 string assembleCard(){
     //08:ES,B,NO,R,MO,Y
+    string result;
     string input;
     vector<string> answer;
     vector<string> options;
@@ -291,11 +434,15 @@ string assembleCard(){
         else
             cout << "Sorry, enter valid numbers please." << endl;
     }
-    return "08:" + options[stoi(answer[0])] + ",B," + options[stoi(answer[1])] + ",R," + options[stoi(answer[2])] + ",Y\n";
+
+    result = "08:" + options[stoi(answer[0])] + ",B," + options[stoi(answer[1])] + ",R," + options[stoi(answer[2])] + ",Y";
+    doAssemble(stoi(playerNum), split(result.substr(3), ','));
+    return result + "\n";
 }
 
 string manoeuvreCard(){
     //09:ES,R,NO,Y
+    string result;
     string input;
     vector<string> answer;
     vector<tuple<string, string>> options;
@@ -344,11 +491,15 @@ string manoeuvreCard(){
         else
             cout << "Sorry, enter valid numbers please." << endl;
     }
-    return "09:" + get<0>(options[stoi(answer[0])]) + "," + get<1>(options[stoi(answer[0])]) + "," + get<0>(options[stoi(answer[1])]) + "," + get<1>(options[stoi(answer[1])]) + "\n";
+
+    result = "09:" + get<0>(options[stoi(answer[0])]) + "," + get<1>(options[stoi(answer[0])]) + "," + get<0>(options[stoi(answer[1])]) + "," + get<1>(options[stoi(answer[1])]);
+    doManoeuvre(stoi(playerNum), split(result.substr(3), ','));
+    return result + "\n";
 }
 
 string outmanoeuvreCard(){
     //10:ES,R,Y,NO,B
+    string result;
     string answer, msgTemp;
     vector<string> options;
     int counter = 0;
@@ -492,11 +643,18 @@ string outmanoeuvreCard(){
             break;
         cout << "Sorry, enter a valid number please." << endl;
     }
-    return msgTemp + options[stoi(answer)].substr(0, 2) + "," + options[stoi(answer)].substr(2, 1) + "\n";
+
+    result = msgTemp + options[stoi(answer)].substr(0, 2) + "," + options[stoi(answer)].substr(2, 1);
+    if(twoFollowersCase)
+        doOutmanoeuvre(stoi(playerNum), split(result.substr(3), ','));
+    else
+        doManoeuvre(stoi(playerNum), split(result.substr(3), ','));
+    return result + "\n";
 }
 
 string negotiateCard(){
     //11:ES,WA
+    string result;
     string input;
     vector<string> answer;
     vector<string> options;
@@ -522,11 +680,15 @@ string negotiateCard(){
             break;
         cout << "Sorry, enter valid numbers please." << endl;
     }
-    return "11:" + options[stoi(answer[0])] + "," + options[stoi(answer[1])] + "\n";
+
+    result = "11:" + options[stoi(answer[0])] + "," + options[stoi(answer[1])];
+    doNegotiate(stoi(playerNum), split(result.substr(3), ','));
+    return result + "\n";
 }
 
 string summonAFollower(){
     //12:ES,B
+    string result;
     string answer;
     vector<string> options;
     int counter = 0;
@@ -566,236 +728,60 @@ string summonAFollower(){
             break;
         cout << "Sorry, enter a valid number please." << endl;
     }
-    return "12:" + options[stoi(answer)].substr(0, 2) + "," + options[stoi(answer)].substr(2, 1) + "\n";
-}
 
-void doAssemble(vector<string> msg){
-    //Subtract the card usage
-    playerList[stoi(msg[0].substr(1, 1))-1].cards["A"]--;
-    //Add followers to regions
-    regionList[msg[2]].B++;
-    regionList[msg[2*2]].R++;
-    regionList[msg[2*3]].Y++;
-    //Take off the appointed follower from region add it to player
-    if(msg[9] == "B"){
-        regionList[msg[8]].B--;
-        playerList[stoi(msg[0].substr(1, 1))-1].B++;
-    }else if(msg[9] == "R"){
-        regionList[msg[8]].R--;
-        playerList[stoi(msg[0].substr(1, 1))-1].R++;
-    }else if(msg[9] == "Y"){
-        regionList[msg[8]].Y--;
-        playerList[stoi(msg[0].substr(1, 1))-1].Y++;
-    }
-}
-
-void doBlueSupport(vector<string> msg){
-    //Subtract the card usage
-    playerList[stoi(msg[0].substr(1, 1))-1].cards["B"]--;
-    //Add followers to region
-    regionList[msg[3]].B += 2;
-    //Take off the appointed follower from region add it to player
-    if(msg[5] == "B"){
-        regionList[msg[4]].B--;
-        playerList[stoi(msg[0].substr(1, 1))-1].B++;
-    }else if(msg[5] == "R"){
-        regionList[msg[4]].R--;
-        playerList[stoi(msg[0].substr(1, 1))-1].R++;
-    }else if(msg[5] == "Y"){
-        regionList[msg[4]].Y--;
-        playerList[stoi(msg[0].substr(1, 1))-1].Y++;
-    }
-}
-
-void doRedSupport(vector<string> msg){
-    //Subtract the card usage
-    playerList[stoi(msg[0].substr(1, 1))-1].cards["R"]--;
-    //Add followers to region
-    regionList[msg[3]].R += 2;
-    //Take off the appointed follower from region add it to player
-    if(msg[5] == "B"){
-        regionList[msg[4]].B--;
-        playerList[stoi(msg[0].substr(1, 1))-1].B++;
-    }else if(msg[5] == "R"){
-        regionList[msg[4]].R--;
-        playerList[stoi(msg[0].substr(1, 1))-1].R++;
-    }else if(msg[5] == "Y"){
-        regionList[msg[4]].Y--;
-        playerList[stoi(msg[0].substr(1, 1))-1].Y++;
-    }
-}
-
-void doYellowSupport(vector<string> msg){
-    //Subtract the card usage
-    playerList[stoi(msg[0].substr(1, 1))-1].cards["Y"]--;
-    //Add followers to region
-    regionList[msg[3]].Y += 2;
-    //Take off the appointed follower from region add it to player
-    if(msg[5] == "B"){
-        regionList[msg[4]].B--;
-        playerList[stoi(msg[0].substr(1, 1))-1].B++;
-    }else if(msg[5] == "R"){
-        regionList[msg[4]].R--;
-        playerList[stoi(msg[0].substr(1, 1))-1].R++;
-    }else if(msg[5] == "Y"){
-        regionList[msg[4]].Y--;
-        playerList[stoi(msg[0].substr(1, 1))-1].Y++;
-    }
-}
-
-void doManoeuvre(vector<string> msg){
-    //Subtract the card usage
-    playerList[stoi(msg[0].substr(1, 1))-1].cards["M"]--;
-    //Swap first follower
-    if(msg[3] == "B"){
-        regionList[msg[2]].B--;
-        regionList[msg[4]].B++;
-    }else if(msg[3] == "R"){
-        regionList[msg[2]].R--;
-        regionList[msg[4]].R++;
-    }else if(msg[3] == "Y"){
-        regionList[msg[2]].Y--;
-        regionList[msg[4]].Y++;
-    }
-    //Swap second follower
-    if(msg[5] == "B"){
-        regionList[msg[2]].B++;
-        regionList[msg[4]].B--;
-    }else if(msg[5] == "R"){
-        regionList[msg[2]].R++;
-        regionList[msg[4]].R--;
-    }else if(msg[5] == "Y"){
-        regionList[msg[2]].Y++;
-        regionList[msg[4]].Y--;
-    }
-    //Take off the appointed follower from region add it to player
-    if(msg[7] == "B"){
-        regionList[msg[6]].B--;
-        playerList[stoi(msg[0].substr(1, 1))-1].B++;
-    }else if(msg[7] == "R"){
-        regionList[msg[6]].R--;
-        playerList[stoi(msg[0].substr(1, 1))-1].R++;
-    }else if(msg[7] == "Y"){
-        regionList[msg[6]].Y--;
-        playerList[stoi(msg[0].substr(1, 1))-1].Y++;
-    }
-}
-
-void doOutmanoeuvre(vector<string> msg){
-    //Subtract the card usage
-    playerList[stoi(msg[0].substr(1, 1))-1].cards["O"]--;
-    //Swap first follower
-    if(msg[3] == "B"){
-        regionList[msg[2]].B--;
-        regionList[msg[5]].B++;
-    }else if(msg[3] == "R"){
-        regionList[msg[2]].R--;
-        regionList[msg[5]].R++;
-    }else if(msg[3] == "Y"){
-        regionList[msg[2]].Y--;
-        regionList[msg[5]].Y++;
-    }
-    //Swap second follower
-    if(msg[4] == "B"){
-        regionList[msg[2]].B--;
-        regionList[msg[5]].B++;
-    }else if(msg[4] == "R"){
-        regionList[msg[2]].R--;
-        regionList[msg[5]].R++;
-    }else if(msg[4] == "Y"){
-        regionList[msg[2]].Y--;
-        regionList[msg[5]].Y++;
-    }
-    //Swap third follower
-    if(msg[6] == "B"){
-        regionList[msg[2]].B++;
-        regionList[msg[5]].B--;
-    }else if(msg[6] == "R"){
-        regionList[msg[2]].R++;
-        regionList[msg[5]].R--;
-    }else if(msg[6] == "Y"){
-        regionList[msg[2]].Y++;
-        regionList[msg[5]].Y--;
-    }
-    //Take off the appointed follower from region add it to player
-    if(msg[8] == "B"){
-        regionList[msg[7]].B--;
-        playerList[stoi(msg[0].substr(1, 1))-1].B++;
-    }else if(msg[8] == "R"){
-        regionList[msg[7]].R--;
-        playerList[stoi(msg[0].substr(1, 1))-1].R++;
-    }else if(msg[8] == "Y"){
-        regionList[msg[7]].Y--;
-        playerList[stoi(msg[0].substr(1, 1))-1].Y++;
-    }
-}
-
-void doNegotiate(vector<string> msg){
-    int a_i, b_i;
-    string temp;
-
-    //Subtract the card usage
-    playerList[stoi(msg[0].substr(1, 1))-1].cards["N"]--;
-    //Added white disc
-    regionList[msg[2]].whiteDisc = true;
-    //Locate two regions index
-    for(int i = nextResolveRegion_i; i < regionOrder.size(); ++i){
-        if(regionOrder[i] == msg[2]) a_i = i;
-        if(regionOrder[i] == msg[3]) b_i = i;
-    }
-    //Swap two regions order
-    temp = regionOrder[a_i];
-    regionOrder[a_i] = regionOrder[b_i];
-    regionOrder[b_i] = temp;
-    //Take off the appointed follower from region add it to player
-    if(msg[5] == "B"){
-        regionList[msg[4]].B--;
-        playerList[stoi(msg[0].substr(1, 1))-1].B++;
-    }else if(msg[5] == "R"){
-        regionList[msg[4]].R--;
-        playerList[stoi(msg[0].substr(1, 1))-1].R++;
-    }else if(msg[5] == "Y"){
-        regionList[msg[4]].Y--;
-        playerList[stoi(msg[0].substr(1, 1))-1].Y++;
-    }
+    result = "12:" + options[stoi(answer)].substr(0, 2) + "," + options[stoi(answer)].substr(2, 1);
+    takeFollower(stoi(playerNum), options[stoi(answer)].substr(0, 2), options[stoi(answer)].substr(2, 1));
+    return result + "\n";
 }
 
 void actionInfo(vector<string> msg){
-    //13:P1;[A,ES,B,NO,R,MO,Y];[ES.B]
+    //P1;[A,ES,B,NO,R,MO,Y];[ES.B]
     cout << "\n" << msg[0] << " ";
+    int playerNo = stoi(msg[0].substr(1, 1));
+    vector<string> subMsg(msg.begin()+2, msg.end()-2);
+
     if(msg[1] == "A"){
         cout << "used Assemble\n";
         cout << msg[2] << " added a " << msg[3] << " follower\n";
         cout << msg[4] << " added a " << msg[5] << " follower\n";
         cout << msg[6] << " added a " << msg[7] << " follower\n";
         cout << msg[0] << " took a " << msg[9] << " follower from " << msg[8] << "\n";
-        doAssemble(msg);
+        if(playerNo != stoi(playerNum)){
+            doAssemble(playerNo, subMsg);
+            takeFollower(playerNo, msg[8], msg[9]);
+        }
         psCounter = 3;
     }else if(msg[1] == "S"){
         if(msg[2] == "S"){
             cout << "used Blue Support\n";
             cout << msg[3] << " added 2 blue followers\n";
             cout << msg[0] << " took a " << msg[5] << " follower from " << msg[4] << "\n";
-            doBlueSupport(msg);
-            psCounter = 3;
+            if(playerNo != stoi(playerNum)) 
+                doBlueSupport(playerNo, subMsg);
         }else if(msg[2] == "W"){
             cout << "used Red Support\n";
             cout << msg[3] << " added 2 red followers\n";
             cout << msg[0] << " took a " << msg[5] << " follower from " << msg[4] << "\n";
-            doRedSupport(msg);
-            psCounter = 3;
+            if(playerNo != stoi(playerNum)) 
+                doRedSupport(playerNo, subMsg);
         }else if(msg[2] == "E"){
             cout << "used Yellow Support\n";
             cout << msg[3] << " added 2 yellow followers\n";
             cout << msg[0] << " took a " << msg[5] << " follower from " << msg[4] << "\n";
-            doYellowSupport(msg);
-            psCounter = 3;
+            if(playerNo != stoi(playerNum)) 
+                doYellowSupport(playerNo, subMsg);
         }
+        if(playerNo != stoi(playerNum)) 
+            takeFollower(playerNo, msg[4], msg[5]);
+        psCounter = 3;
     }else if(msg[1] == "M"){
         cout << "used Manoeuvre\n";
         cout << "swapped " << msg[3] << " from " << msg[2] << " with " << msg[5] << " from " << msg[4] << "\n";
         cout << msg[0] << " took a " << msg[7] << " follower from " << msg[6] << "\n";
-        doManoeuvre(msg);
+        if(playerNo != stoi(playerNum)){
+            doManoeuvre(playerNo, subMsg);
+            takeFollower(playerNo, msg[6], msg[7]);
+        }
         psCounter = 3;
     }else if(msg[1] == "O"){
         cout << "used Outmanoeuvre\n";
@@ -803,19 +789,28 @@ void actionInfo(vector<string> msg){
         if(msg.size() == 8){
             cout << "swapped " << msg[3] << " and " << msg[4] << " from " << msg[2] << " with " << msg[6] << " from " << msg[5] << "\n";
             cout << msg[0] << " took a " << msg[8] << " follower from " << msg[7] << "\n";
-            doOutmanoeuvre(msg);
+            if(playerNo != stoi(playerNum)){
+                doOutmanoeuvre(playerNo, subMsg);
+                takeFollower(playerNo, msg[7], msg[8]);
+            }
         }
         else{ //or swap 1 with 1
             cout << "swapped " << msg[3] << " from " << msg[2] << " with " << msg[5] << " from " << msg[4] << "\n";
             cout << msg[0] << " took a " << msg[7] << " follower from " << msg[6] << "\n";
-            doManoeuvre(msg);
+            if(playerNo != stoi(playerNum)){
+                doManoeuvre(playerNo, subMsg);
+                takeFollower(playerNo, msg[6], msg[7]);
+            }
         }
         psCounter = 3;
     }else if(msg[1] == "N"){
         cout << "used Negotiate\n";
         cout << "swapped PS order of regions of " << msg[2] << "(added white disc) and " << msg[3] << "\n";
         cout << msg[0] << " took a " << msg[5] << " follower from " << msg[4] << "\n";
-        doNegotiate(msg);
+        if(playerNo != stoi(playerNum)){
+            doNegotiate(playerNo, subMsg);
+            takeFollower(playerNo, msg[4], msg[5]);
+        }
         psCounter = 3;
     }else{
         cout << "passed\n";
@@ -1024,6 +1019,7 @@ int main(int argc, char* arg[]){
                             cout << saying;
                             writeToPipe(speakTo, saying);
                         }
+                        displayCurrentTable();
                     }
                     break;
                 }
